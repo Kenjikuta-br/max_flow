@@ -17,9 +17,10 @@ OBJ_DIR = obj
 CPP_SOURCES = $(SRC_DIR)/main.cpp \
               $(SRC_DIR)/graph.cpp \
               $(SRC_DIR)/ford_fulkerson.cpp \
-              $(SRC_DIR)/find_path_sources/bfs.cpp
+              $(SRC_DIR)/find_path_sources/bfs.cpp \
+              $(SRC_DIR)/find_path_sources/dfs_random.cpp
 
-C_SOURCE = $(SRC_DIR)/support_code_ritt//new_washington.c
+C_SOURCE = $(SRC_DIR)/support_code_ritt/new_washington.c
 C_OBJECT = $(OBJ_DIR)/new_washington.o
 
 RITT_SOURCE = $(SRC_DIR)/support_code_ritt/maxflow.cpp
@@ -41,15 +42,15 @@ $(OBJ_DIR):
 
 # Compilar new_washington.c com warnings desativados
 $(C_OBJECT): $(C_SOURCE) | $(OBJ_DIR)
-	$(CC) $(CFLAGS) $(NO_WARN_FLAGS) -c $< -o $@
+	$(CC) $(NO_WARN_FLAGS) -c $< -o $@
 
-# Compilar max_flow (C++) normalmente
+# Compilar max_flow (C++)
 $(EXEC_MAIN): $(CPP_SOURCES) | $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $(CPP_SOURCES)
 
 # Compilar gengraph (C) com new_washington compilado separadamente
 $(EXEC_GEN): $(C_OBJECT) | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) -o $@ $^
 
 # Compilar ritt_max_flow (C++)
 $(EXEC_RITT): $(RITT_SOURCE) | $(BIN_DIR)

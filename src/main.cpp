@@ -1,6 +1,7 @@
 #include "graph.hpp"
 #include "ford_furkenson.hpp"
 #include "find_path_headers/bfs.hpp"
+#include "find_path_headers/dfs_random.hpp"
 
 
 #include <iostream>
@@ -17,6 +18,8 @@ int main(int argc, char* argv[]) {
 
     if (strategy_name == "bfs") {
         strategy = bfs_path;
+    } else if (strategy_name == "dfs") {
+        strategy = dfs_path;
     } else {
         std::cerr << "Estrategia inválida: " << strategy_name << ". Use bfs ou dfs.\n";
         return 1;
