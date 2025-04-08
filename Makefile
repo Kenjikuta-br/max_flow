@@ -6,6 +6,7 @@ CC = cc
 CXXFLAGS = -Wall -std=c++17 -O3 -Iinclude
 CFLAGS = -Wall
 NO_WARN_FLAGS = -w  # Desativa todos os warnings
+RITT_SUPPRESS_WARNINGS = -Wno-maybe-uninitialized
 
 # Pastas
 SRC_DIR = src
@@ -53,9 +54,9 @@ $(EXEC_MAIN): $(CPP_SOURCES) | $(BIN_DIR)
 $(EXEC_GEN): $(C_OBJECT) | $(BIN_DIR)
 	$(CC) -o $@ $^
 
-# Compilar ritt_max_flow (C++)
+# Compilar ritt_max_flow (C++) com warning específico desativado
 $(EXEC_RITT): $(RITT_SOURCE) | $(BIN_DIR)
-	$(CXX) $(CXXFLAGS) -o $@ $(RITT_SOURCE)
+	$(CXX) $(CXXFLAGS) $(RITT_SUPPRESS_WARNINGS) -o $@ $(RITT_SOURCE)
 
 # Limpar arquivos compilados
 clean:

@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
     int sink = graph.get_sink();
 
     int max_flow = ford_fulkerson(graph, source, sink, strategy);
-    std::cout << "Fluxo máximo: " << max_flow << "\n";
+    std::cout << max_flow << "\n";
 
     return 0;
 }

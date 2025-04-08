@@ -1,0 +1,5 @@
+graph,strategy,max_flow,time_ns
+grafo_50_50_37.dimacs,bfs,1596,52963313
+grafo_50_50_37.dimacs,dfs,1596,242594505
+grafo_50_50_37.dimacs,fat,1596,57936710
+grafo_50_50_37.dimacs,ritt,1596,8399946

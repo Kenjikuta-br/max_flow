@@ -46,5 +46,5 @@ int main(int argc, char *argv[]) {
                                 get(&EdgeInformation::edge_capacity,g),
                                 get(&EdgeInformation::edge_residual_capacity,g),
                                 get(&EdgeInformation::reverse_edge,g),
-                                get(boost::vertex_index, g));    
+                                get(boost::vertex_index, g)) << endl;    
 }
