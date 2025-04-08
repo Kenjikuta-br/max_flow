@@ -1,44 +1,46 @@
 #include "find_path_headers/fattest_path.hpp"
+#include "find_path_headers/bfs.hpp" // for bfs_state utilities
 #include <vector>
 #include <queue>
 #include <limits>
 #include <algorithm>
 
-// Represents a node in the priority queue with its bottleneck capacity
+// Used in priority queue: stores node and its bottleneck capacity so far
 struct State {
     int cap;
     int node;
     bool operator<(const State& other) const {
-        return cap < other.cap; // for max-heap behavior
+        return cap < other.cap; // max-heap by bottleneck
     }
 };
 
 bool fattest_path(const Graph& graph, int s, int t, Path& path) {
     int n = graph.size();
-    int INF = std::numeric_limits<int>::max();
+    bfs_state::reset(n);  // reset visited array using visitedToken trick
 
     std::vector<int> max_cap(n, 0); // max bottleneck capacity to each node
-    std::vector<std::pair<int, int>> parent(n, {-1, -1}); // to reconstruct the path
+    std::vector<std::pair<int, int>> parent(n, {-1, -1}); // (prev_node, edge_index)
 
     std::priority_queue<State> pq;
-    pq.push({INF, s}); // start from source with infinite capacity
-    max_cap[s] = INF;
+    pq.push({std::numeric_limits<int>::max(), s});
+    max_cap[s] = std::numeric_limits<int>::max();
 
-    // Modified Dijkstra: prioritize paths with highest bottleneck capacity
     while (!pq.empty()) {
         State state = pq.top();
         pq.pop();
         int u = state.node;
 
+        // Skip node if already visited in this round
+        if (bfs_state::visited[u] == bfs_state::visitedToken) continue;
+        bfs_state::visited[u] = bfs_state::visitedToken;
+
         const auto& neighbors = graph.get_neighbors(u);
         for (size_t i = 0; i < neighbors.size(); ++i) {
             const Edge& e = neighbors[i];
-            int residual = e.capacity - e.flow;
-            if (residual <= 0) continue; // skip saturated edges
+            int residual = e.remaining_capacity();
+            if (residual <= 0) continue;
 
-            // Bottleneck capacity of current path
             int cap = std::min(max_cap[u], residual);
-            // If we found a better path to e.to, update it
             if (cap > max_cap[e.to]) {
                 max_cap[e.to] = cap;
                 parent[e.to] = {u, static_cast<int>(i)};
@@ -47,9 +49,9 @@ bool fattest_path(const Graph& graph, int s, int t, Path& path) {
         }
     }
 
-    if (max_cap[t] == 0) return false; // No path found
+    if (max_cap[t] == 0) return false;
 
-    // Reconstruct the path from sink to source using parent[]
+    // Reconstruct augmenting path from t to s
     path.clear();
     for (int u = t; u != s; u = parent[u].first) {
         int prev = parent[u].first;
@@ -57,6 +59,6 @@ bool fattest_path(const Graph& graph, int s, int t, Path& path) {
         path.push_back({prev, idx});
     }
 
-    std::reverse(path.begin(), path.end()); // path is constructed backward, so reverse
+    std::reverse(path.begin(), path.end());
     return true;
 }

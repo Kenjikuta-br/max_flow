@@ -2,6 +2,7 @@
 #include "ford_furkenson.hpp"
 #include "find_path_headers/bfs.hpp"
 #include "find_path_headers/dfs_random.hpp"
+#include "find_path_headers/fattest_path.hpp"
 
 
 #include <iostream>
@@ -9,7 +10,7 @@
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        std::cerr << "Uso: " << argv[0] << " bfs|dfs < dimacs_graph\n";
+        std::cerr << "Uso: " << argv[0] << " bfs|dfs|fat < dimacs_graph\n";
         return 1;
     }
 
@@ -20,6 +21,8 @@ int main(int argc, char* argv[]) {
         strategy = bfs_path;
     } else if (strategy_name == "dfs") {
         strategy = dfs_path;
+    } else if (strategy_name == "fat") {
+        strategy = fattest_path;
     } else {
         std::cerr << "Estrategia inválida: " << strategy_name << ". Use bfs ou dfs.\n";
         return 1;

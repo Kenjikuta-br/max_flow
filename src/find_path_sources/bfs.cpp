@@ -4,35 +4,38 @@
 
 bool bfs_path(const Graph& graph, int s, int t, Path& path) {
     int n = graph.size();
-    std::vector<bool> visited(n, false);
-    std::vector<std::pair<int, int>> parent(n, {-1, -1}); // {prev_node, edge_index}
+    bfs_state::reset(n);  // Prepare visited array and increment token
+
+    std::vector<std::pair<int, int>> parent(n, {-1, -1}); // Stores how each node was reached
 
     std::queue<int> q;
     q.push(s);
-    visited[s] = true;
+    bfs_state::visited[s] = bfs_state::visitedToken; // Mark source as visited for this iteration
 
+    // Standard BFS loop to find an s-t path with positive residual capacity
     while (!q.empty()) {
         int u = q.front();
         q.pop();
 
-        const auto& neighbors = graph.get_neighbors(u);  // AQUI!
+        const auto& neighbors = graph.get_neighbors(u);
 
         for (size_t i = 0; i < neighbors.size(); ++i) {
             const Edge& e = neighbors[i];
-            if (!visited[e.to] && e.capacity > e.flow) {
-                visited[e.to] = true;
-                parent[e.to] = {u, i};
+
+            // Skip visited nodes or saturated edges
+            if (bfs_state::visited[e.to] != bfs_state::visitedToken && e.capacity > e.flow) {
+                bfs_state::visited[e.to] = bfs_state::visitedToken;
+                parent[e.to] = {u, static_cast<int>(i)};
                 q.push(e.to);
-                if (e.to == t) break;
+                if (e.to == t) break; // Early stop if sink is reached
             }
         }
     }
-    
 
-    // No path to sink
-    if (!visited[t]) return false;
+    // Sink wasn't reached => no augmenting path
+    if (bfs_state::visited[t] != bfs_state::visitedToken) return false;
 
-    // Reconstruct path from t to s
+    // Reconstruct path from t to s using parent info
     path.clear();
     for (int u = t; u != s; u = parent[u].first) {
         int prev = parent[u].first;
@@ -40,6 +43,6 @@ bool bfs_path(const Graph& graph, int s, int t, Path& path) {
         path.push_back({prev, idx});
     }
 
-    std::reverse(path.begin(), path.end()); // Make path go from s to t
+    std::reverse(path.begin(), path.end()); // Ensure path goes from s to t
     return true;
 }

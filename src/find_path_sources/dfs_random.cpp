@@ -1,4 +1,5 @@
 #include "find_path_headers/dfs_random.hpp"
+#include "find_path_headers/bfs.hpp" // for bfs_state
 #include <vector>
 #include <algorithm>
 #include <random>
@@ -6,29 +7,31 @@
 
 bool dfs_path(const Graph& graph, int source, int sink, Path& path) {
     int n = graph.size();
-    std::vector<bool> visited(n, false);
+    bfs_state::reset(n);  // resets visitedToken and resizes visited
+
     std::vector<std::pair<int, int>> parent(n, {-1, -1}); // {prev_node, edge_index}
     std::stack<int> s;
-
     s.push(source);
-    visited[source] = true;
+    bfs_state::visited[source] = bfs_state::visitedToken;
 
     std::random_device rd;
-    std::mt19937 rng(rd()); // Mersenne Twister RNG
+    std::mt19937 rng(rd());
 
     while (!s.empty()) {
         int u = s.top();
         s.pop();
 
-        auto neighbors = graph.get_neighbors(u);
+        const auto& neighbors = graph.get_neighbors(u);
+
+        // Generate a shuffled list of edge indices for randomized traversal
         std::vector<int> indices(neighbors.size());
-        for (size_t i = 0; i < neighbors.size(); ++i) indices[i] = i;
+        for (size_t i = 0; i < neighbors.size(); ++i) indices[i] = static_cast<int>(i);
         std::shuffle(indices.begin(), indices.end(), rng);
 
-        for (size_t i : indices) {
+        for (int i : indices) {
             const Edge& e = neighbors[i];
-            if (!visited[e.to] && e.capacity > e.flow) {
-                visited[e.to] = true;
+            if (bfs_state::visited[e.to] != bfs_state::visitedToken && e.remaining_capacity() > 0) {
+                bfs_state::visited[e.to] = bfs_state::visitedToken;
                 parent[e.to] = {u, i};
                 s.push(e.to);
                 if (e.to == sink) break;
@@ -36,10 +39,9 @@ bool dfs_path(const Graph& graph, int source, int sink, Path& path) {
         }
     }
 
-    // No path found
-    if (!visited[sink]) return false;
+    if (bfs_state::visited[sink] != bfs_state::visitedToken) return false;
 
-    // Reconstruct the path from sink to source
+    // Reconstruct path from sink to source
     path.clear();
     for (int u = sink; u != source; u = parent[u].first) {
         int prev = parent[u].first;
@@ -47,6 +49,6 @@ bool dfs_path(const Graph& graph, int source, int sink, Path& path) {
         path.push_back({prev, idx});
     }
 
-    std::reverse(path.begin(), path.end()); // Make path go from source to sink
+    std::reverse(path.begin(), path.end());
     return true;
 }
