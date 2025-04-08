@@ -3,7 +3,7 @@ CXX = g++
 CC = cc
 
 # Flags
-CXXFLAGS = -Wall -std=c++17 -Iinclude
+CXXFLAGS = -Wall -std=c++17 -O3 -Iinclude
 CFLAGS = -Wall
 NO_WARN_FLAGS = -w  # Desativa todos os warnings
 
@@ -18,7 +18,8 @@ CPP_SOURCES = $(SRC_DIR)/main.cpp \
               $(SRC_DIR)/graph.cpp \
               $(SRC_DIR)/ford_fulkerson.cpp \
               $(SRC_DIR)/find_path_sources/bfs.cpp \
-              $(SRC_DIR)/find_path_sources/dfs_random.cpp
+              $(SRC_DIR)/find_path_sources/dfs_random.cpp \
+              $(SRC_DIR)/find_path_sources/fattest_path.cpp
 
 C_SOURCE = $(SRC_DIR)/support_code_ritt/new_washington.c
 C_OBJECT = $(OBJ_DIR)/new_washington.o
@@ -44,7 +45,7 @@ $(OBJ_DIR):
 $(C_OBJECT): $(C_SOURCE) | $(OBJ_DIR)
 	$(CC) $(NO_WARN_FLAGS) -c $< -o $@
 
-# Compilar max_flow (C++)
+# Compilar max_flow (C++) com todas as fontes necessárias
 $(EXEC_MAIN): $(CPP_SOURCES) | $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $(CPP_SOURCES)
 
