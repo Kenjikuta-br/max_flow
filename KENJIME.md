@@ -160,7 +160,22 @@ To run the RITT version of the maximum flow program, execute:
 ### 🧱 Weakness
 - Harder to implement, especially blocking flow part.
 
----
+---# 🔄 Capacity Scaling vs. Fattest Path
+
+| Feature                      | **Capacity Scaling**                                              | **Fattest Path**                                               |
+|------------------------------|-------------------------------------------------------------------|----------------------------------------------------------------|
+| **Strategy**                 | Only considers paths with residual capacity ≥ Δ                  | Always picks the path with the largest bottleneck capacity     |
+| **Flow Improvement Approach**| Focuses on big-capacity paths first, avoids small ones early     | Maximizes flow per path by choosing fattest                    |
+| **Implementation**           | Modify BFS/DFS to skip edges with capacity < Δ                  | Use modified Dijkstra with max-heap to find fattest path       |
+| **Time Complexity**          | O(E² log C)                                                      | O(E log V × max_flow)                                          |
+| **Best For**                 | Graphs with widely varying capacities                            | Sparse graphs with large-capacity edges                        |
+| **Worst Case**               | When all capacities are small or similar                         | When fattest paths don't lead to quick flow improvements       |
+| **Flow per Iteration**       | Medium to high (depends on Δ)                                    | Usually high                                                   |
+| **Number of Iterations**     | Log(C) phases with multiple augmentations                        | Typically fewer due to high-volume pushes                      |
+| **Ease of Implementation**   | Easier (extension of Ford-Fulkerson with a threshold)            | Harder (needs priority queue and bottleneck tracking)          |
+
+
+
 
 
 

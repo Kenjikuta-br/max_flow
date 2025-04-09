@@ -1,4 +1,4 @@
-#include "find_path_headers/fattest_path.hpp"
+#include "find_path_headers/fattest.hpp"
 #include "find_path_headers/bfs.hpp" // for bfs_state utilities
 #include <vector>
 #include <queue>

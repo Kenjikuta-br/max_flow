@@ -20,7 +20,9 @@ CPP_SOURCES = $(SRC_DIR)/main.cpp \
               $(SRC_DIR)/ford_fulkerson.cpp \
               $(SRC_DIR)/find_path_sources/bfs.cpp \
               $(SRC_DIR)/find_path_sources/dfs_random.cpp \
-              $(SRC_DIR)/find_path_sources/fattest_path.cpp
+              $(SRC_DIR)/find_path_sources/fattest.cpp \
+			  $(SRC_DIR)/find_path_sources/capacity_scaling.cpp #\
+			  $(SRC_DIR)/find_path_sources/dinics.cpp 
 
 C_SOURCE = $(SRC_DIR)/support_code_ritt/new_washington.c
 C_OBJECT = $(OBJ_DIR)/new_washington.o
