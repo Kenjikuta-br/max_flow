@@ -4,7 +4,7 @@
 GRAPHS_DIR="./graphs"                    # folder with your .dimacs graphs
 MY_EXE="./bin/max_flow"                 # your max flow binary
 RITT_EXE="./bin/ritt_max_flow"         # ritt's implementation
-STRATEGIES=("bfs" "dfs" "fat")         # your strategy options
+STRATEGIES=("bfs" "dfs" "fat" "scaling")         # your strategy options
 OUTPUT_CSV="results/correctness/results.csv"               # where results will be stored
 
 # ==== INIT OUTPUT FILE ====

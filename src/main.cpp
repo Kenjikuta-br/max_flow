@@ -3,6 +3,7 @@
 #include "find_path_headers/bfs.hpp"
 #include "find_path_headers/dfs_random.hpp"
 #include "find_path_headers/fattest.hpp"
+#include "find_path_headers/capacity_scaling.hpp"
 
 
 #include <iostream>
@@ -24,8 +25,7 @@ int main(int argc, char* argv[]) {
     } else if (strategy_name == "fat") {
         strategy = fattest_path;
     } else if (strategy_name == "scaling") {
-        //strategy = capacity_scaling_path;
-        std::cerr << "Ainda não implementado capacity scaling\n";
+        strategy = capacity_scaling_path;
     } else if (strategy_name == "dinics") {
         //strategy = dinics_path;
         std::cerr << "Ainda não implementado dinics\n";
