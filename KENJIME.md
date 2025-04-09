@@ -23,25 +23,3 @@ To run the RITT version of the maximum flow program, execute:
 
 
 
-
-
-
-
-# Project Structure
-
-```
-.
-├── include/              # Header files for the project (e.g., graph.hpp, ford_fulkerson.hpp, strategies/)
-├── src/                  # Source files
-│   ├── main.cpp          # Main function (entry point)
-│   ├── graph.cpp         # Graph representation and DIMACS input parsing
-│   ├── ford_fulkerson.cpp# Ford-Fulkerson implementation
-│   ├── find_path_sources/
-│   │    └── bfs.cpp      # BFS strategy for finding augmenting paths
-│   └── support_code_ritt/
-│        ├── new_washington.c   # Graph generator in C (provided by your professor)
-│        └── maxflow.cpp         # RITT version implementation for maximum flow
-├── bin/                  # Folder where executables will be placed (created during build)
-├── obj/                  # Object files directory (created during build)
-└── Makefile              # Makefile to compile the project
-```
