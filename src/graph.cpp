@@ -2,6 +2,10 @@
 #include "graph.hpp"
 #include <sstream>
 #include <stdexcept>
+#include <iostream> //debug for residual graph
+#include <map>
+#include <set>
+
 
 // Constructor that initializes the graph with n nodes
 Graph::Graph(int n) : n(n), adj_list(n) {}
@@ -76,7 +80,70 @@ void Graph::read_dimacs(std::istream& in) {
         }
     }
 
+
+
     if (source == -1 || sink == -1) {
         throw std::runtime_error("Source or sink node not defined");
+    }
+
+    compress_graph();
+
+    // Imprime o grafo residual no terminal
+    // print_residual_graph();
+}
+
+
+void Graph::compress_graph() {
+    // Mapa para armazenar capacidades de ida e volta entre pares (u, v)
+    std::map<std::pair<int, int>, int> forward_capacity;
+
+    for (int u = 0; u < n; ++u) {
+        for (const Edge& e : adj_list[u]) {
+            if (e.capacity > 0) {
+                forward_capacity[{u, e.to}] += e.capacity;
+            }
+        }
+    }
+
+    // Nova lista de adjacência consolidada
+    std::vector<std::vector<Edge>> new_adj(n);
+    std::set<std::pair<int, int>> handled;
+
+    for (const auto& [pair, cap_uv] : forward_capacity) {
+        int u = pair.first;
+        int v = pair.second;
+
+        if (handled.count({u, v}) || handled.count({v, u})) continue;
+        handled.insert({u, v});
+        handled.insert({v, u});
+
+        int cap_uv_final = forward_capacity[{u, v}];
+        int cap_vu_final = forward_capacity[{v, u}];
+
+        // u → v (forward)
+        Edge forward = {v, u, static_cast<int>(new_adj[v].size()), cap_uv_final, 0};
+        new_adj[u].push_back(forward);
+
+        // v → u (reverse)
+        Edge backward = {u, v, static_cast<int>(new_adj[u].size()) - 1, cap_vu_final, 0};
+        new_adj[v].push_back(backward);
+    }
+
+    adj_list = std::move(new_adj);
+}
+
+// Imprime o grafo residual no terminal
+void Graph::print_residual_graph() const {
+    std::cout << "Residual Graph:\n";
+
+    for (int u = 0; u < n; ++u) {
+        for (const Edge& e : adj_list[u]) {
+            // Mostra todas as arestas, inclusive reversas
+            std::cout << "  " << u << " -> " << e.to
+                      << " | cap: " << e.capacity
+                      << " | flow: " << e.flow
+                      << " | residual: " << (e.capacity - e.flow)
+                      << "\n";
+        }
     }
 }

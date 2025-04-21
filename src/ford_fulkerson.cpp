@@ -35,5 +35,7 @@ int ford_fulkerson(Graph& graph, int s, int t, PathFindingStrategy find_path) {
         max_flow += added_flow;
     }
 
+    //graph.print_residual_graph();
+
     return max_flow;
 }

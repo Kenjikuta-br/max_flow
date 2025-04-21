@@ -45,6 +45,8 @@ public:
 
     void add_edge(int from, int to, int capacity);         // Adds forward and reverse edge
     void read_dimacs(std::istream& in);                    // Load graph in DIMACS format
+    void compress_graph();
+    void print_residual_graph() const;
 
     int size() const;                                      // Number of vertices
     const std::vector<Edge>& adj(int u) const;             // Read-only access to adjacents
