@@ -6,6 +6,7 @@
 
 // Represents a directed edge with a reverse edge in the residual graph
 struct Edge {
+    int id;       // Unique ID (forward >=0, reverse = -1)
     int to;       // Destination node
     int from;     // Source node (for debugging and utilities)
     int rev;      // Index of reverse edge in the destination's adjacency list
@@ -48,7 +49,14 @@ public:
     void compress_graph();
     void print_residual_graph() const;
 
+    // Basic accessors
     int size() const;                                      // Number of vertices
+    int num_vertices() const;                              // Alias for size()
+    int num_edges() const;                                 // Number of forward edges (original)
+    int num_edges_residual() const;                        // Number of forward edges (residual)
+    int get_min_edge_id() const;
+    int total_out_capacity(int s) const;                   // Sum of capacities out of node s
+
     const std::vector<Edge>& adj(int u) const;             // Read-only access to adjacents
     std::vector<std::vector<Edge>>& get_adj();             // Writable adjacency list
     const std::vector<Edge>& get_neighbors(int u) const;   // Alias to adj()
@@ -59,5 +67,8 @@ public:
 private:
     int n;                                                 // Number of nodes
     int source = -1, sink = -1;                            // Source/sink indices (initialized to -1)
+    int next_edge_id = 0;
+    int next_edge_id_reverse = 0;
+    int next_edge_id_aux = 0;
     std::vector<std::vector<Edge>> adj_list;               // Adjacency list
 };

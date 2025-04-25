@@ -16,12 +16,16 @@ namespace {
 }
 
 // Internal function to find a path with minimum capacity threshold 'delta'
-static bool dfs_with_delta(const Graph& graph, int s, int t, Path& path, int delta) {
+static bool dfs_with_delta(const Graph& graph, int s, int t, Path& path, int delta, FFStats* stats) {
     int n = graph.size();
     std::vector<std::pair<int, int>> parent(n, {-1, -1});
     std::stack<int> st;
     st.push(s);
     visited[s] = visitedToken;
+
+    int visited_nodes = 1; // source is initially visited
+    int visited_arcs_residual = 0;
+    int visited_arcs_forward =0;
 
     while (!st.empty()) {
         int u = st.top();
@@ -31,14 +35,26 @@ static bool dfs_with_delta(const Graph& graph, int s, int t, Path& path, int del
         for (size_t i = 0; i < neighbors.size(); ++i) {
             const Edge& e = neighbors[i];
             int residual = e.remaining_capacity();
-            if (residual >= delta && visited[e.to] != visitedToken) {
-                visited[e.to] = visitedToken;
-                parent[e.to] = {u, static_cast<int>(i)};
-                st.push(e.to);
-                if (e.to == t) break;
+            if (residual >= delta) {
+                if(e.capacity > 0){
+                    ++visited_arcs_forward;
+                }
+                ++visited_arcs_residual;
+                
+                if (visited[e.to] != visitedToken) {
+                    visited[e.to] = visitedToken;
+                    parent[e.to] = {u, static_cast<int>(i)};
+                    st.push(e.to);
+                    ++visited_nodes;
+                    if (e.to == t) break;
+                }
             }
         }
     }
+
+    stats->visited_nodes_per_iter.push_back(visited_nodes);
+    stats->visited_forward_arcs_per_iter.push_back(visited_arcs_forward);
+    stats->visited_residual_arcs_per_iter.push_back(visited_arcs_residual);
 
     if (visited[t] != visitedToken) return false;
 
@@ -53,7 +69,7 @@ static bool dfs_with_delta(const Graph& graph, int s, int t, Path& path, int del
     return true;
 }
 
-bool capacity_scaling_path(const Graph& graph, int s, int t, Path& path) {
+bool capacity_scaling_path(const Graph& graph, int s, int t, Path& path, FFStats* stats) {
     int max_cap = 0;
 
     // Find the maximum edge capacity in the graph
@@ -71,7 +87,7 @@ bool capacity_scaling_path(const Graph& graph, int s, int t, Path& path) {
     // Try to find a path for the current delta threshold
     while (delta > 0) {
         reset(graph.size());
-        if (dfs_with_delta(graph, s, t, path, delta)) return true;
+        if (dfs_with_delta(graph, s, t, path, delta, stats)) return true;
         delta >>= 1; // Reduce delta if no path is found at this threshold
     }
 

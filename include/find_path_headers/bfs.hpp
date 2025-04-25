@@ -1,6 +1,7 @@
 #pragma once
 
 #include "graph.hpp"
+#include "ford_fulkerson.hpp" 
 #include <vector>
 #include <cstdint>  // for uint64_t
 
@@ -22,4 +23,4 @@ namespace bfs_state {
 
 // Finds an s-t augmenting path using BFS.
 // Returns true if a valid path was found, storing it in `path`.
-bool bfs_path(const Graph& graph, int s, int t, Path& path);
+bool bfs_path(const Graph& graph, int s, int t, Path& path, FFStats* stats);

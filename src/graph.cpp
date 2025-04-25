@@ -5,6 +5,7 @@
 #include <iostream> //debug for residual graph
 #include <map>
 #include <set>
+#include <limits>
 
 
 // Constructor that initializes the graph with n nodes
@@ -12,10 +13,12 @@ Graph::Graph(int n) : n(n), adj_list(n) {}
 
 // Adds a forward and reverse edge (for residual graph) between 'from' and 'to'
 void Graph::add_edge(int from, int to, int capacity) {
-   // Forward edge: from → to with given capacity
-    Edge forward = {to, from, static_cast<int>(adj_list[to].size()), capacity, 0};
-    // Reverse edge: to → from with 0 capacity (initially), used for flow cancellation
-    Edge backward = {from, to, static_cast<int>(adj_list[from].size()), 0, 0};
+    int fid = next_edge_id++;   // ID for forward edge
+    int rid = next_edge_id_reverse--;
+    // Forward edge: from → to with given capacity
+    Edge forward = {fid, to, from, static_cast<int>(adj_list[to].size()), capacity, 0};
+    // Reverse edge: to → from with 0 capacity (initially) and fid = -1 to sinalize it is a backward edge, used for flow cancellation
+    Edge backward = {rid, from, to, static_cast<int>(adj_list[from].size()), 0, 0};
 
     adj_list[from].push_back(forward);
     adj_list[to].push_back(backward);
@@ -23,6 +26,50 @@ void Graph::add_edge(int from, int to, int capacity) {
 
 int Graph::size() const {
     return n;
+}
+
+int Graph::num_vertices() const {
+    return size();
+}
+
+// Count only edges with positive capacity (original forward edges)
+int Graph::num_edges() const {
+    int count = 0;
+    for (const auto& vec : adj_list) {
+        for (const Edge& e : vec) {
+            if (e.capacity > 0) ++count;
+        }
+    }
+    return count;
+}
+
+int Graph::num_edges_residual() const {
+    int count = 0;
+    for (const auto& neighbors : adj_list) {
+        for ([[maybe_unused]]const Edge& e : neighbors) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int Graph::get_min_edge_id() const {
+    int min_id = std::numeric_limits<int>::max();
+    for (const auto& neighbors : adj_list) {
+        for (const Edge& e : neighbors) {
+            min_id = std::min(min_id, e.id);
+        }
+    }
+    return min_id;
+}
+
+// Sum of capacities of all outgoing edges from node s
+int Graph::total_out_capacity(int s) const {
+    int sum = 0;
+    for ( const Edge& e : adj_list[s]) {
+        sum += e.capacity;
+    }
+    return sum;
 }
 
 // Returns the adjacency list of a given node
@@ -77,6 +124,8 @@ void Graph::read_dimacs(std::istream& in) {
             int from, to, cap;
             iss >> from >> to >> cap;
             add_edge(from - 1, to - 1, cap);
+            //std::cout << "Adding edge: " << from - 1 << " -> " << to - 1 << " with capacity " << cap << std::endl;
+
         }
     }
 
@@ -120,12 +169,15 @@ void Graph::compress_graph() {
         int cap_uv_final = forward_capacity[{u, v}];
         int cap_vu_final = forward_capacity[{v, u}];
 
+        // Criação de uma nova aresta forward (u → v)
+        int fid = next_edge_id_aux++; // Cria um novo fid
+
         // u → v (forward)
-        Edge forward = {v, u, static_cast<int>(new_adj[v].size()), cap_uv_final, 0};
+        Edge forward = {fid, v, u, static_cast<int>(new_adj[v].size()), cap_uv_final, 0};
         new_adj[u].push_back(forward);
 
         // v → u (reverse)
-        Edge backward = {u, v, static_cast<int>(new_adj[u].size()) - 1, cap_vu_final, 0};
+        Edge backward = {-1, u, v, static_cast<int>(new_adj[u].size()) - 1, cap_vu_final, 0};
         new_adj[v].push_back(backward);
     }
 

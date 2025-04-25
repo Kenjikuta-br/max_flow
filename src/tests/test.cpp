@@ -12,6 +12,7 @@
 
 int main(int argc, char* argv[]) {
     bool is_ford_fulkerson = true;
+    bool is_cout_csv = false;
 
     if (argc < 2) {
         std::cerr << "Uso: " << argv[0] << " bfs|dfs|fat|scaling|dinics < dimacs_graph\n";
@@ -46,6 +47,7 @@ int main(int argc, char* argv[]) {
     Graph graph;
     graph.read_dimacs(std::cin);
 
+
     int source = graph.get_source();
     int sink = graph.get_sink();
     int max_flow = -3;
@@ -54,12 +56,25 @@ int main(int argc, char* argv[]) {
 
     if(is_ford_fulkerson){
         max_flow = ford_fulkerson(graph, source, sink, strategy, type, &stats);
-    }else{
+    }else{ 
         max_flow = dinic_max_flow(graph, source, sink);
     }
 
+    if(is_cout_csv){
+        //csv header
+        // max_flow; iterations; bound; r
+        std::cout << max_flow << ";";
+        std::cout << stats.iterations << ";";
+        std::cout << stats.bound << ";";
+        std::cout << stats.r << "\n";    
 
-    std::cout << max_flow << "\n";
+    }else{
+        std::cout << "max flow:" << max_flow << "\n";
+        std::cout << "iterations:" << stats.iterations << "\n";
+        std::cout << "bound:" << stats.bound << "\n";
+        std::cout << "r (iterations/max_iterations):" << stats.r << "\n";    
+    }
+   
 
     return 0;
 }
