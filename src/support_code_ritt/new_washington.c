@@ -146,9 +146,9 @@ char *argv[];
     break;
   case 4:
     fprintf(f, "c Matching Graph\n");
-    fprintf(f, "c %"PRId32" vertices, %"PRId32" degree\n",
-	    dim1, dim2);
-    G = Match(dim1, dim2);
+    fprintf(f, "c %"PRId32" vertices, %"PRId32" degree, capacities in range [0, %"PRId32"]\n",
+	    dim1, dim2, range);
+    G = Match(dim1, dim2, range);
     s = 0;
     t = G->size - 1;
     break;
@@ -359,8 +359,8 @@ int32_t d1, d2, r;
 
 
 
-Graph *Match(n, d)
-int32_t n, d;
+Graph *Match(n, d, r)
+int32_t n, d, r;
 {
   Graph *G;
   int32_t i, j, source, sink;
@@ -384,15 +384,15 @@ int32_t n, d;
   sink = 2*n + 1;
 
   for (i = 1; i <= n; i++){
-    AddEdge(source, source + i, 1, G);
-    AddEdge(sink - i, sink, 1, G);
+    AddEdge(source, source + i, r, G);
+    AddEdge(sink - i, sink, r, G);
   }
 
 
   for (j = 1; j <= n; j++){    
     RandomSubset(1, n, d, x);
     for (i = 0; i < d; i++)
-      AddEdge(j, n + x[i], 1, G);
+      AddEdge(j, n + x[i], r, G);
   }
 
   free(x);

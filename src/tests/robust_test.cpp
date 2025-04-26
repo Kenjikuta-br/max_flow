@@ -35,7 +35,7 @@ void print_with_precision(T value) {
 }
 
 int main() {
-    const int num_repetitions = 1;
+    const int num_repetitions = 30;
 
     std::vector<StrategyConfig> strategies = {
         {"bfs", bfs_path, AlgorithmType::BFS_EDMONDS_KARP},
@@ -65,6 +65,7 @@ int main() {
         double sum_bound = 0.0;
         double sum_r = 0.0;
         double sum_m = 0.0;
+		double sum_n = 0.0;
         double sum_cFrac = 0.0;
         double sum_rBar = 0.0;
         double sum_time_per_mI = 0.0;
@@ -95,6 +96,7 @@ int main() {
             sum_bound                    += stats.bound;
             sum_r                        += stats.r;
             sum_m                        += static_cast<double>(stats.m);
+			sum_n                        += static_cast<double>(stats.n);
             sum_cFrac                    += stats.cFrac;
             sum_rBar                     += stats.rBar;
             sum_time_per_mI              += stats.time_per_mI;
@@ -118,6 +120,7 @@ int main() {
         double avg_bound                   = sum_bound * inv;
         double avg_r                       = sum_r * inv;
         double avg_m                       = sum_m * inv;
+		double avg_n                       = sum_n * inv;
         double avg_cFrac                   = sum_cFrac * inv;
         double avg_rBar                    = sum_rBar * inv;
         double avg_time_per_mI             = sum_time_per_mI * inv;
@@ -147,6 +150,8 @@ int main() {
         print_with_precision(avg_r);
         std::cout << ";";
         print_with_precision(avg_m);
+        std::cout << ";";
+		print_with_precision(avg_n);
         std::cout << ";";
         print_with_precision(avg_cFrac);
         std::cout << ";";

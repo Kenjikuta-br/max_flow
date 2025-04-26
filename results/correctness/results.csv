@@ -1,11 +1,6 @@
 graph,strategy,max_flow,time_ns
-grafo_50_50_37.dimacs,bfs,0,10982529
-grafo_50_50_37.dimacs,dfs,0,10259336
-grafo_50_50_37.dimacs,fat,0,10287786
-grafo_50_50_37.dimacs,scaling,0,10451586
-grafo_50_50_37.dimacs,ritt,1596,8776777
-graph_kenji.dimacs,bfs,0,2609734
-graph_kenji.dimacs,dfs,0,2555164
-graph_kenji.dimacs,fat,0,2631694
-graph_kenji.dimacs,scaling,0,2430073
-graph_kenji.dimacs,ritt,8,2565544
+10graph_68_25_1000.dimacs,bfs,204000,7046680976
+10graph_68_25_1000.dimacs,dfs,204000,23682328945
+10graph_68_25_1000.dimacs,fat,204000,500446784
+10graph_68_25_1000.dimacs,scaling,204000,317220003
+10graph_68_25_1000.dimacs,ritt,204000,58294929

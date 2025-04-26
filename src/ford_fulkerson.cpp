@@ -47,6 +47,7 @@ int ford_fulkerson(Graph& graph, int s, int t, PathFindingStrategy find_path, Al
     Path path;
     int iterations = 0;
 
+	stats->n = graph.num_vertices();
     stats->m = graph.num_edges();
     stats->m_residual = graph.num_edges_residual();
 

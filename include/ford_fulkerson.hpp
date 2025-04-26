@@ -15,6 +15,7 @@ struct FFStats {
     double bound = 0.0;       // theoretical upper bound on iterations
     double r = 0.0;           // ratio iterations / bound
     int m = -1;                            // number of forward edges, will be initialized after read the graph
+	int n = -1;
 
     // === Critical metrics, specific of Edmons-Karp (BFS)===
     int m_residual = -1;                   // number of residual edges, will be initialized after read the graph
@@ -58,6 +59,11 @@ struct FFStats {
     double avg_delete_normalized = 0.0;    // average deletions normalized by n
     double avg_update_normalized_m = 0.0;  // average updates normalized by m
     double avg_update_normalized_theoretical = 0.0; // normalized updates by expected value ( (α−1)n ln n for m = n^α )
+
+	// === Aux for capacity scaling ===
+	bool max_cap_initialized = false;
+	int delta;
+	int max_cap;
 };
 
 

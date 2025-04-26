@@ -79,4 +79,8 @@ $(EXEC_TEST): $(ROBUST_SOURCES) | $(BIN_DIR)
 clean:
 	rm -rf $(BIN_DIR) $(OBJ_DIR)
 
+clean_graph:
+	rm -rf graphs/*
+
+
 .PHONY: all clean

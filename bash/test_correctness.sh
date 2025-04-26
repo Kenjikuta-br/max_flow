@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==== CONFIG ====
-GRAPHS_DIR="./graphs"                    # folder with your .dimacs graphs
+GRAPHS_DIR="./graphs/square_mesh"                    # folder with your .dimacs graphs
 MY_EXE="./bin/max_flow"                 # your max flow binary
 RITT_EXE="./bin/ritt_max_flow"         # ritt's implementation
 STRATEGIES=("bfs" "dfs" "fat" "scaling")         # your strategy options

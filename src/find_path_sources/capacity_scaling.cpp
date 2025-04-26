@@ -15,7 +15,6 @@ namespace {
     }
 }
 
-// Internal function to find a path with minimum capacity threshold 'delta'
 static bool dfs_with_delta(const Graph& graph, int s, int t, Path& path, int delta, FFStats* stats) {
     int n = graph.size();
     std::vector<std::pair<int, int>> parent(n, {-1, -1});
@@ -23,20 +22,21 @@ static bool dfs_with_delta(const Graph& graph, int s, int t, Path& path, int del
     st.push(s);
     visited[s] = visitedToken;
 
-    int visited_nodes = 1; // source is initially visited
+    int visited_nodes = 1;
     int visited_arcs_residual = 0;
-    int visited_arcs_forward =0;
+    int visited_arcs_forward = 0;
+    bool found = false;
 
-    while (!st.empty()) {
+    while (!st.empty() && !found) {
         int u = st.top();
         st.pop();
 
         const auto& neighbors = graph.get_neighbors(u);
-        for (size_t i = 0; i < neighbors.size(); ++i) {
+        for (size_t i = 0; i < neighbors.size() && !found; ++i) {
             const Edge& e = neighbors[i];
             int residual = e.remaining_capacity();
             if (residual >= delta) {
-                if(e.capacity > 0){
+                if (e.capacity > 0) {
                     ++visited_arcs_forward;
                 }
                 ++visited_arcs_residual;
@@ -46,7 +46,9 @@ static bool dfs_with_delta(const Graph& graph, int s, int t, Path& path, int del
                     parent[e.to] = {u, static_cast<int>(i)};
                     st.push(e.to);
                     ++visited_nodes;
-                    if (e.to == t) break;
+                    if (e.to == t) {
+                        found = true;
+                    }
                 }
             }
         }
@@ -56,7 +58,7 @@ static bool dfs_with_delta(const Graph& graph, int s, int t, Path& path, int del
     stats->visited_forward_arcs_per_iter.push_back(visited_arcs_forward);
     stats->visited_residual_arcs_per_iter.push_back(visited_arcs_residual);
 
-    if (visited[t] != visitedToken) return false;
+    if (!found) return false;
 
     // Reconstruct path
     path.clear();
@@ -70,25 +72,47 @@ static bool dfs_with_delta(const Graph& graph, int s, int t, Path& path, int del
 }
 
 bool capacity_scaling_path(const Graph& graph, int s, int t, Path& path, FFStats* stats) {
-    int max_cap = 0;
-
-    // Find the maximum edge capacity in the graph
-    for (int u = 0; u < graph.size(); ++u) {
-        for (const Edge& e : graph.get_neighbors(u)) {
-            max_cap = std::max(max_cap, e.remaining_capacity());
+    // Initialize max capacity and delta only once
+    if (!stats->max_cap_initialized) {
+        stats->max_cap = 0;
+        for (int u = 0; u < graph.size(); ++u) {
+            for (const Edge& e : graph.get_neighbors(u)) {
+                stats->max_cap = std::max(stats->max_cap, e.remaining_capacity());
+            }
         }
+        
+        // Calculate initial delta as the highest power of 2 <= max_cap
+        if (stats->max_cap > 0) {
+            stats->delta = 1 << (31 - __builtin_clz(stats->max_cap));
+        } else {
+            stats->delta = 0;
+        }
+        
+        stats->max_cap_initialized = true;
     }
 
-    // Start with the highest power of 2 <= max_cap
-    int delta = 1;
-    while (delta <= max_cap) delta <<= 1;
-    delta >>= 1;
+    // Early exit if no capacity remains
+    if (stats->max_cap == 0) return false;
 
-    // Try to find a path for the current delta threshold
-    while (delta > 0) {
+    // Try to find a path for current delta threshold
+    while (stats->delta > 0) {
         reset(graph.size());
-        if (dfs_with_delta(graph, s, t, path, delta, stats)) return true;
-        delta >>= 1; // Reduce delta if no path is found at this threshold
+        if (dfs_with_delta(graph, s, t, path, stats->delta, stats)) {
+            // Update max capacity after augmentation
+            stats->max_cap = 0;
+            for (int u = 0; u < graph.size(); ++u) {
+                for (const Edge& e : graph.get_neighbors(u)) {
+                    stats->max_cap = std::max(stats->max_cap, e.remaining_capacity());
+                }
+            }
+            
+            // Adjust delta if needed (shouldn't be larger than current max)
+            if (stats->delta > stats->max_cap) {
+                stats->delta = 1 << (31 - __builtin_clz(stats->max_cap | 1));
+            }
+            return true;
+        }
+        stats->delta >>= 1;
     }
 
     return false;
