@@ -5,3 +5,9 @@ other_works_from_friends/
 venv/
 submissions/
 bin/
+charts/criticality/
+charts/defect/
+charts/operation_counts/
+charts/r_all/
+charts/r_by_graph_type/
+charts/time/

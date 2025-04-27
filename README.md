@@ -59,8 +59,38 @@ This creates a CSV file `results.csv` with:
 graph,strategy,max_flow,time_ns
 ```
 
+
+# Ambiente Virtual com Python
+
+Este projeto utiliza um ambiente virtual para gerenciar as dependências.
+
+## 🔧 Configuração do Ambiente Virtual
+
+Para configurar o ambiente virtual e instalar as dependências, siga os passos abaixo:
+
+```bash
+# 1. Crie o ambiente virtual
+python3 -m venv venv
+
+# 2. Ative o ambiente virtual
+
+# No Linux/macOS:
+source venv/bin/activate
+
+# 3. Instale as dependências listadas no requirements.txt
+pip install -r requirements.txt
+
+# 4. (Opcional) Verifique os pacotes instalados
+pip list
+
+# 5. Quando terminar, desative o ambiente virtual
+deactivate
+``` 
+
+
+
 ## Project Structure
-```
+```bash
 .
 ├── include/                      # Header files
 │   ├── graph.hpp                 # Graph representation

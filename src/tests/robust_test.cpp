@@ -35,7 +35,7 @@ void print_with_precision(T value) {
 }
 
 int main() {
-    const int num_repetitions = 30;
+    const int num_repetitions = 5;
 
     std::vector<StrategyConfig> strategies = {
         {"bfs", bfs_path, AlgorithmType::BFS_EDMONDS_KARP},
@@ -70,8 +70,7 @@ int main() {
         double sum_rBar = 0.0;
         double sum_time_per_mI = 0.0;
         double sum_time_per_nI = 0.0;
-        double sum_time_over_nm_n_plus_m = 0.0;
-        double sum_time_over_r_2nm_sntm = 0.0;
+        double sum_time_over_nm = 0.0;
         double sum_time_over_I_sntm = 0.0;
         double sum_s_bar = 0.0;
         double sum_t_bar_forward = 0.0;
@@ -101,8 +100,7 @@ int main() {
             sum_rBar                     += stats.rBar;
             sum_time_per_mI              += stats.time_per_mI;
             sum_time_per_nI              += stats.time_per_nI;
-            sum_time_over_nm_n_plus_m    += stats.time_over_nm_n_plus_m;
-            sum_time_over_r_2nm_sntm     += stats.time_over_r_2nm_sntm;
+            sum_time_over_nm    += stats.time_over_nm;
             sum_time_over_I_sntm         += stats.time_over_I_sntm;
             sum_s_bar                    += stats.s_bar;
             sum_t_bar_forward            += stats.t_bar_forward;
@@ -125,8 +123,7 @@ int main() {
         double avg_rBar                    = sum_rBar * inv;
         double avg_time_per_mI             = sum_time_per_mI * inv;
         double avg_time_per_nI             = sum_time_per_nI * inv;
-        double avg_time_over_nm_n_plus_m   = sum_time_over_nm_n_plus_m * inv;
-        double avg_time_over_r_2nm_sntm    = sum_time_over_r_2nm_sntm * inv;
+        double avg_time_over_nm   = sum_time_over_nm * inv;
         double avg_time_over_I_sntm        = sum_time_over_I_sntm * inv;
         double avg_s_bar                   = sum_s_bar * inv;
         double avg_t_bar_forward           = sum_t_bar_forward * inv;
@@ -161,9 +158,7 @@ int main() {
         std::cout << ";";
         print_with_precision(avg_time_per_nI);
         std::cout << ";";
-        print_with_precision(avg_time_over_nm_n_plus_m);
-        std::cout << ";";
-        print_with_precision(avg_time_over_r_2nm_sntm);
+        print_with_precision(avg_time_over_nm);
         std::cout << ";";
         print_with_precision(avg_time_over_I_sntm);
         std::cout << ";";

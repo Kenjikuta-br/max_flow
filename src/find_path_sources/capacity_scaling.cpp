@@ -94,26 +94,15 @@ bool capacity_scaling_path(const Graph& graph, int s, int t, Path& path, FFStats
     // Early exit if no capacity remains
     if (stats->max_cap == 0) return false;
 
-    // Try to find a path for current delta threshold
+    // Textbook approach: No early exit based on max_cap
     while (stats->delta > 0) {
         reset(graph.size());
         if (dfs_with_delta(graph, s, t, path, stats->delta, stats)) {
-            // Update max capacity after augmentation
-            stats->max_cap = 0;
-            for (int u = 0; u < graph.size(); ++u) {
-                for (const Edge& e : graph.get_neighbors(u)) {
-                    stats->max_cap = std::max(stats->max_cap, e.remaining_capacity());
-                }
-            }
-            
-            // Adjust delta if needed (shouldn't be larger than current max)
-            if (stats->delta > stats->max_cap) {
-                stats->delta = 1 << (31 - __builtin_clz(stats->max_cap | 1));
-            }
+            // Key change: Skip max_cap recomputation entirely
             return true;
         }
+        // Always halve delta (no max_cap checks)
         stats->delta >>= 1;
     }
-
     return false;
 }

@@ -14,11 +14,11 @@ struct FFStats {
     int iterations = 0;       // number of augmenting paths found
     double bound = 0.0;       // theoretical upper bound on iterations
     double r = 0.0;           // ratio iterations / bound
-    int m = -1;                            // number of forward edges, will be initialized after read the graph
-	int n = -1;
+    int m = 0.0;                            // number of forward edges, will be initialized after read the graph
+	int n = 0.0;
 
     // === Critical metrics, specific of Edmons-Karp (BFS)===
-    int m_residual = -1;                   // number of residual edges, will be initialized after read the graph
+    int m_residual = 0.0;                   // number of residual edges, will be initialized after read the graph
     std::vector<int> criticalCount;        // counter C for each edge
     double cFrac = 0.0;                    // fraction of edges that were critical at least once (C)
     double rBar = 0.0;                     // average criticality among critical edges (r̄)
@@ -31,11 +31,10 @@ struct FFStats {
     double time_per_mI = 0.0;   // T / (m * I) — FF-type metric: time per arc per iteration
     double time_per_nI = 0.0;   // T / (n * I) — FF-type metric: time per vertex per iteration
 
-    // Time normalized by pessimistic complexity upper bound
-    double time_over_nm_n_plus_m = 0.0;  // T / (nm(n + m))
+    // Time normalized by 
+    double time_over_nm = 0.0;  // T / (nm)
 
     // Time normalized by node/arc exploration (operation-based complexity)
-    double time_over_r_2nm_sntm = 0.0;   // T / [r * 2nm * (s̄ * n + t̄ * m)]
     double time_over_I_sntm = 0.0;       // T / [I * (s̄ * n + t̄ * m)]
 
 
@@ -53,7 +52,6 @@ struct FFStats {
     std::vector<int> heap_implicit_updates_per_iter;  // number of implicit updates (reinsertions) per iteration
     std::vector<int> heap_total_inserts_per_iter;     // total heap insertions per iteration (real + updates)
     std::vector<int> heap_deleteMins_per_iter;        // number of deleteMin (pop) operations per iteration
-    std::vector<int> heap_real_deleteMins_per_iter;   // number of deleteMin - implicit_updates, operations per iteration
 
     double avg_insert_normalized = 0.0;    // average insertions normalized by n
     double avg_delete_normalized = 0.0;    // average deletions normalized by n

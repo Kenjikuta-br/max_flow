@@ -46,6 +46,17 @@ bool fattest_path(const Graph& graph, int s, int t, Path& path, FFStats* stats) 
         bfs_state::visited[u] = bfs_state::visitedToken;
         ++visited_nodes;
 
+		if (u == t) {
+			stats->visited_nodes_per_iter.push_back(visited_nodes);
+			stats->visited_forward_arcs_per_iter.push_back(visited_arcs_forward);
+			stats->visited_residual_arcs_per_iter.push_back(visited_arcs_residual);
+			stats->heap_real_inserts_per_iter.push_back(real_inserts);
+			stats->heap_total_inserts_per_iter.push_back(total_inserts);
+			stats->heap_implicit_updates_per_iter.push_back(total_inserts - real_inserts);
+			stats->heap_deleteMins_per_iter.push_back(deleteMins);
+			break; // Found t with fattest path, can stop early
+		}
+
         const auto& neighbors = graph.get_neighbors(u);
         for (size_t i = 0; i < neighbors.size(); ++i) {
             const Edge& e = neighbors[i];
@@ -59,11 +70,15 @@ bool fattest_path(const Graph& graph, int s, int t, Path& path, FFStats* stats) 
             if (residual <= 0) continue;
 
             int cap = std::min(max_cap[u], residual);
-            if (cap > max_cap[e.to]) {
+            if (cap > max_cap[e.to] && bfs_state::visited[e.to] != bfs_state::visitedToken) {
+				if (max_cap[e.to] == 0) { 
+					++real_inserts; // First time seeing this node
+				}
                 max_cap[e.to] = cap;
                 parent[e.to] = {u, static_cast<int>(i)};
                 pq.push({cap, e.to});
                 ++total_inserts;
+	
             }
         }
     }
@@ -75,7 +90,7 @@ bool fattest_path(const Graph& graph, int s, int t, Path& path, FFStats* stats) 
     stats->heap_total_inserts_per_iter.push_back(total_inserts);
     stats->heap_implicit_updates_per_iter.push_back(total_inserts - real_inserts);
     stats->heap_deleteMins_per_iter.push_back(deleteMins);
-    stats->heap_real_deleteMins_per_iter.push_back(deleteMins - (total_inserts - real_inserts));
+
 
     if (max_cap[t] == 0){
         return false;

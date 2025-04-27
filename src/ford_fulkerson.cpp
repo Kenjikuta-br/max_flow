@@ -104,12 +104,11 @@ void computeCriticalStats(const Graph& graph, FFStats* stats) {
 
 // Helper function to populate algorithm-specific stats
 void populateStats(FFStats* stats, const Graph& graph, int s, int iterations, AlgorithmType type) {
-    if (!stats) return;
 
     stats->iterations = iterations;
-    int n = graph.size();
-    int m = graph.num_edges();
-    int m_residual= graph.num_edges_residual();       
+    stats->n = graph.size();
+    stats->m = graph.num_edges();
+    stats->m_residual= graph.num_edges_residual();       
     int C = graph.total_out_capacity(s); 
 
     // ----------------------
@@ -121,13 +120,13 @@ void populateStats(FFStats* stats, const Graph& graph, int s, int iterations, Al
             stats->bound = static_cast<double>(C);
             break;
         case AlgorithmType::BFS_EDMONDS_KARP:
-            stats->bound = static_cast<double>(n) * m_residual / 2.0;
+            stats->bound = static_cast<double>(stats->n) * stats->m_residual / 2.0;
             break;
         case AlgorithmType::FATTEST_PATH:
-            stats->bound = m_residual * std::log2(std::max(1, C));
+            stats->bound = stats->m_residual * std::log2(std::max(1, C));
             break;
         case AlgorithmType::CAPACITY_SCALING:
-            stats->bound = static_cast<double>(C); // TODO: Adjust for capacity scaling
+            stats->bound = stats->m_residual * std::log2(std::max(1, C));
             break;
     }
 
@@ -146,9 +145,9 @@ void populateStats(FFStats* stats, const Graph& graph, int s, int iterations, Al
     // ----------------------
     double s_bar = 0, t_bar_forward = 0, t_bar_residual = 0;
     for (int i = 0; i < stats->iterations; ++i) {
-        s_bar += static_cast<double>(stats->visited_nodes_per_iter[i]) / n;
-        t_bar_forward += static_cast<double>(stats->visited_forward_arcs_per_iter[i]) / m;
-        t_bar_residual += static_cast<double>(stats->visited_residual_arcs_per_iter[i]) / m_residual;
+        s_bar += static_cast<double>(stats->visited_nodes_per_iter[i]) / stats->n;
+        t_bar_forward += static_cast<double>(stats->visited_forward_arcs_per_iter[i]) / stats->m;
+        t_bar_residual += static_cast<double>(stats->visited_residual_arcs_per_iter[i]) / stats->m_residual;
     }
     s_bar /= stats->iterations;
     t_bar_forward /= stats->iterations;
@@ -166,17 +165,17 @@ void populateStats(FFStats* stats, const Graph& graph, int s, int iterations, Al
         int sum_inserts = 0, sum_deletes = 0, sum_updates = 0;
         for (int i = 0; i < stats->iterations; ++i) {
             sum_inserts += stats->heap_real_inserts_per_iter[i];
-            sum_deletes += stats->heap_real_deleteMins_per_iter[i];
+            sum_deletes += stats->heap_deleteMins_per_iter[i];
             sum_updates += stats->heap_implicit_updates_per_iter[i];
         }
 
-        stats->avg_insert_normalized = static_cast<double>(sum_inserts) / (n * stats->iterations);
-        stats->avg_delete_normalized = static_cast<double>(sum_deletes) / (n * stats->iterations);
-        stats->avg_update_normalized_m = static_cast<double>(sum_updates) / (m * stats->iterations);
+        stats->avg_insert_normalized = static_cast<double>(sum_inserts) / (stats->n * stats->iterations);
+        stats->avg_delete_normalized = static_cast<double>(sum_deletes) / (stats->n * stats->iterations);
+        stats->avg_update_normalized_m = static_cast<double>(sum_updates) / (stats->m * stats->iterations);
 
         // Estimate α using m ≈ n^α → α = log_m(n)
-        double alpha = std::log(static_cast<double>(m)) / std::log(static_cast<double>(n));
-        double expected_updates = (alpha - 1.0) * n * std::log(static_cast<double>(n));
+        double alpha = std::log(static_cast<double>(stats->m)) / std::log(static_cast<double>(stats->n));
+        double expected_updates = (alpha - 1.0) * stats->n * std::log(static_cast<double>(stats->n));
         stats->avg_update_normalized_theoretical = expected_updates > 0.0
             ? static_cast<double>(sum_updates) / (expected_updates * stats->iterations)
             : 0.0;
@@ -196,21 +195,17 @@ void populateStats(FFStats* stats, const Graph& graph, int s, int iterations, Al
     double I = static_cast<double>(stats->iterations);  // Number of iterations
 
     // Time per arc per iteration: T / (m * I)
-    stats->time_per_mI = (m > 0 && I > 0) ? T / (m * I) : 0.0;
+    stats->time_per_mI = (stats->m_residual > 0 && I > 0) ? T / (stats->m_residual * I) : 0.0;
 
     // Time per vertex per iteration: T / (n * I)
-    stats->time_per_nI = (n > 0 && I > 0) ? T / (n * I) : 0.0;
+    stats->time_per_nI = (stats->n > 0 && I > 0) ? T / (stats->n * I) : 0.0;
 
-    // Time normalized by pessimistic complexity upper bound: T / (nm(n + m))
-    stats->time_over_nm_n_plus_m = (n > 0 && m > 0) 
-        ? T / (n * m * (n + m)) : 0.0;
-
-    // Time normalized by operation-based complexity: T / [r * 2nm * (s̄ * n + t̄ * m)]
-    stats->time_over_r_2nm_sntm = (stats->r > 0 && n > 0 && m > 0)
-        ? T / (stats->r * 2 * n * m * (stats->s_bar * n + stats->t_bar_residual * m)) : 0.0;
+    // Time normalized by p: T / (nm)
+    stats->time_over_nm = (stats->n > 0 && stats->m_residual > 0) 
+        ? T / (stats->n * stats->m_residual) : 0.0;
 
     // Time normalized by iteration complexity: T / [I * (s̄ * n + t̄ * m)]
-    stats->time_over_I_sntm = (I > 0 && n > 0 && m > 0)
-        ? T / (I * (stats->s_bar * n + stats->t_bar_residual * m_residual)) : 0.0;
+    stats->time_over_I_sntm = (I > 0 && stats->n > 0 && stats->m_residual > 0)
+        ? T / (I * (stats->s_bar * stats->n + stats->t_bar_residual * stats->m_residual)) : 0.0;
 
 }

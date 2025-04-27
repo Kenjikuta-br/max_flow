@@ -20,8 +20,10 @@ bool bfs_path(const Graph& graph, int s, int t, Path& path, FFStats* stats) {
     q.push(s);
     bfs_state::visited[s] = bfs_state::visitedToken; // Mark source as visited for this iteration
 
+	bool found = false;
+
     // Standard BFS loop to find an s-t path with positive residual capacity
-    while (!q.empty()) {
+    while (!q.empty()&& !found) {
         int u = q.front();
         q.pop();
 
@@ -41,7 +43,10 @@ bool bfs_path(const Graph& graph, int s, int t, Path& path, FFStats* stats) {
                 bfs_state::visited[e.to] = bfs_state::visitedToken;
                 parent[e.to] = {u, static_cast<int>(i)};
                 q.push(e.to);
-                if (e.to == t) break; // Early stop if sink is reached
+                if (e.to == t) {
+					found = true;
+					break;
+				}
             }
         }
 

@@ -17,7 +17,7 @@ for folder in "${GRAPH_FOLDERS[@]}"; do
     mkdir -p "$OUTPUT_DIR"
     cat <<'EOF' | tr -d '\n' > "$OUTPUT_CSV"
 graph_name;graph_type;algorithm;max_flow;avg_runtime;avg_iterations;avg_bound;avg_r;avg_m;avg_n;avg_cFrac;avg_rBar;
-avg_time_per_mI;avg_time_per_nI;avg_time_over_nm_n_plus_m;avg_time_over_r_2nm_sntm;avg_time_over_I_sntm;
+avg_time_per_mI;avg_time_per_nI;avg_time_over_nm;avg_time_over_I_sntm;
 avg_s_bar;avg_t_bar_forward;avg_t_bar_residual;avg_insert_norm;avg_delete_norm;avg_update_norm_m;avg_update_norm_theoretical
 EOF
 
